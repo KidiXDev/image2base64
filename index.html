@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+
+  <body>
+    <main>
+      <div class="container">
+        <center>
+          <h1>Base64 Image Converter</h1>
+          <div class="input-container">
+            <input type="text" id="input-image" placeholder="Enter image URL" />
+            <button id="btnSelectFile" class="select-button">Select File</button>
+            <input type="file" id="fileInput" accept=".png, .jpg, .jpeg" style="display: none;">
+          </div>
+          <button id="btnConvert" class="btn">Convert</button>
+          <div id="output" class="image-output hide-element">
+            <img id="imgPreview" class="img-input" />
+          </div>
+          <button id="btnCopy" class="btn btn-copy hide-element">Copy</button>
+          </textarea>
+        </center>
+      </div>
+    </main>
+    <script src="scripts/script.js"></script>
+  </body>
+</html>
