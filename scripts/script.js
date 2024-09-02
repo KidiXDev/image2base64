@@ -3,6 +3,7 @@ const previewImage = document.getElementById("imgPreview");
 const inputImage = document.getElementById("input-image");
 const convertButton = document.getElementById("btnConvert");
 const copyButton = document.getElementById("btnCopy");
+const resultButton = document.getElementById("btnShowResult");
 
 let file;
 let base64;
@@ -16,7 +17,7 @@ imageInput.addEventListener("change", function () {
   if (this.files && this.files[0]) {
     file = this.files[0];
 
-    // Check if file is image
+    // check if the file is an image
     if (isImageFile(file)) {
       const imageUrl = URL.createObjectURL(file);
       inputImage.value = "local://" + file.name;
@@ -49,14 +50,13 @@ function isEmpty(str) {
 
 convertButton.addEventListener("click", async function () {
   if (!inputImage.value.startsWith("local://") && !isEmpty(inputImage.value)) {
-    console.log("wait");
     base64 = await urlToBase64(inputImage.value);
     return;
   } else if (file == null || isEmpty(inputImage.value)) {
     Swal.fire({
       icon: "error",
       title: "Error",
-      text: "Please select file first",
+      text: "Please select an image",
       toast: true,
     });
 
@@ -67,6 +67,20 @@ convertButton.addEventListener("click", async function () {
 
 copyButton.addEventListener("click", async function () {
   await copyToClipboard(base64);
+});
+
+resultButton.addEventListener("click", function () {
+  try {
+    sessionStorage.setItem("base64Data", base64);
+    window.open("result.html", "_blank");
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Sorry, this base64 string is too large to display in the result.\nPlease just copy it.",
+      toast: true,
+    });
+  }
 });
 
 function isImageFile(file) {
@@ -99,7 +113,6 @@ async function convertToBase64(file) {
 async function urlToBase64(url) {
   try {
     const response = await fetch(url);
-    console.log("test");
     const blob = await response.blob();
     const reader = new FileReader();
 
