@@ -8,6 +8,7 @@ let file;
 let base64;
 
 document.getElementById("btnSelectFile").addEventListener("click", function () {
+  imageInput.value = "";
   imageInput.click();
 });
 
@@ -18,10 +19,8 @@ imageInput.addEventListener("change", function () {
     // Check if file is image
     if (isImageFile(file)) {
       const imageUrl = URL.createObjectURL(file);
-      previewImage.src = imageUrl;
       inputImage.value = "local://" + file.name;
-      document.getElementById("output").classList.remove("hide-element");
-      //   document.getElementById("copy").classList.remove("hide-element");
+      showImage(imageUrl);
     } else {
       Swal.fire({
         icon: "error",
@@ -33,14 +32,35 @@ imageInput.addEventListener("change", function () {
   }
 });
 
+function showImage(imageUrl) {
+  previewImage.src = imageUrl;
+  document.getElementById("output").classList.remove("hide-element");
+  document.getElementById("result-item").classList.add("hide-element");
+}
+
+function hideImage() {
+  document.getElementById("output").classList.add("hide-element");
+  document.getElementById("result-item").classList.add("hide-element");
+}
+
+function isEmpty(str) {
+  return !str.trim().length;
+}
+
 convertButton.addEventListener("click", async function () {
-  if (file == null) {
+  if (!inputImage.value.startsWith("local://") && !isEmpty(inputImage.value)) {
+    console.log("wait");
+    base64 = await urlToBase64(inputImage.value);
+    return;
+  } else if (file == null || isEmpty(inputImage.value)) {
     Swal.fire({
       icon: "error",
       title: "Error",
       text: "Please select file first",
       toast: true,
     });
+
+    return;
   }
   base64 = await convertToBase64(file);
 });
@@ -58,23 +78,88 @@ async function convertToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
+    reader.onload = () => {
+      resolve(reader.result);
+      document.getElementById("result-item").classList.remove("hide-element");
 
-    document.getElementById("btnCopy").classList.remove("hide-element");
+      const toastApp = new SvelteToast({
+        target: document.body,
+      });
+      toast.push("Done", {
+        duration: 1000,
+        theme: {
+          "--toastBarHeight": 0,
+        },
+      });
+    };
+    reader.onerror = (error) => reject(error);
   });
+}
+
+async function urlToBase64(url) {
+  try {
+    const response = await fetch(url);
+    console.log("test");
+    const blob = await response.blob();
+    const reader = new FileReader();
+
+    return new Promise((resolve, reject) => {
+      reader.onloadend = () => {
+        resolve(reader.result);
+
+        document.getElementById("result-item").classList.remove("hide-element");
+
+        const toastApp = new SvelteToast({
+          target: document.body,
+        });
+        toast.push("Done", {
+          duration: 1000,
+          theme: {
+            "--toastBarHeight": 0,
+          },
+        });
+      };
+      reader.onerror = () => {
+        reject(new Error("Failed to convert image to Base64"));
+      };
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
 }
 
 async function copyToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
-    Swal.fire({
-      title: "Success",
-      text: "Copied to clipboard!",
-      icon: "success",
-      toast: true,
+    toast.push("Copied to clipboard", {
+      theme: {
+        "--toastBarHeight": 0,
+      },
     });
   } catch (error) {
-    console.error("Gagal menyalin ke clipboard: ", error);
+    console.error("Failed to copy into clipboard: ", error);
   }
+}
+
+inputImage.addEventListener("focusout", async function () {
+  if (isEmpty(inputImage.value)) {
+    hideImage();
+  } else if (
+    !inputImage.value.startsWith("local://") &&
+    !isEmpty(inputImage.value)
+  ) {
+    showImage(inputImage.value);
+  }
+});
+
+async function checkURL(url) {
+  return url.match(/\.(jpeg|jpg|png)$/) != null;
+}
+
+async function urlToFile(url, filename) {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new File([blob], filename, { type: blob.type });
 }

@@ -48,17 +48,29 @@ body {
   font-size: 16px;
   margin-bottom: 5px;
   margin-left: 10px;
+  transition: 0.3s;
+}
+
+.select-button:hover {
+  background-color: #2415c7;
+  transition: 0.3s;
+}
+
+.convert-container {
+  display: flex;
 }
 
 .btn {
   width: 100%;
-  padding: 10px;
   background-color: #2e1fe0;
   border: none;
   color: white;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  transition: 0.3s;
+  padding: 10px;
+  margin: 5px;
 }
 
 .btn:hover {
@@ -78,6 +90,10 @@ body {
   margin-bottom: 50px;
 }
 
+.result {
+  display: flex;
+}
+
 .img-input {
   height: 100%;
   max-width: 100%;
@@ -88,4 +104,10 @@ body {
 
 .hide-element {
   display: none;
+}
+
+:root {
+  --toastBackground: #1f70e0;
+  --toastColor: white;
+  --toastBarBackground: #2e1fe0;
 }
